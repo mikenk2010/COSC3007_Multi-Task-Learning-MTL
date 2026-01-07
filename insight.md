@@ -1,128 +1,159 @@
-# Target Attribute Characterization
+# Multi-Task Learning (MTL) – Experimental Insights
 
-This study employs a **multi-task convolutional neural network (MTL-CNN)** to predict three distinct targets (A, B, and C) from a shared visual input. Although the three targets are learned jointly, they differ significantly in terms of **spatial dependency**, **feature scale**, and **task difficulty**, which has important implications for both model design and performance.
+## Overview
+This document summarizes findings from iterative experiments on a 3-task CNN model trained on 32×32 grayscale inputs.
 
----
+Tasks:
+- **Task A**: 10-class classification (global shape / identity)
+- **Task B**: 32-class classification (orientation / fine-grained structure)
+- **Task C**: Regression (intensity / amplitude)
 
-## Target A — Global Shape / Geometric Structure
-
-### Attribute Description
-Target A represents **global geometric characteristics** of the object or pattern within the image. These attributes are determined by the **overall spatial arrangement** rather than localized details.
-
-Typical examples include:
-- Overall shape or form
-- Coarse spatial layout
-- Structural symmetry or topology
-- Dominant global features
-
-### Feature Dependency
-- Primarily depends on **low- to mid-frequency spatial information**
-- Relatively robust to local noise and small perturbations
-- Moderately invariant to orientation changes
-- Effectively captured by **deep convolutional features with global pooling**
-
-### Learning Behavior
-- Consistently outperforms the random baseline
-- Shows steady learning during early and mid training stages
-- Begins to plateau or slightly overfit in later epochs
-- Indicates moderate competition with other tasks in the shared backbone
-
-### Architectural Implications
-Target A benefits from:
-- Shared convolutional representations
-- Global Average Pooling (GAP)
-- Moderately regularized dense layers
-
-Fine-grained spatial resolution is not critical at later network stages.
+The goal is to understand *learnability*, *task interference*, and *data limitations* before further architectural changes.
 
 ---
 
-## Target B — Orientation / Fine-Grained Spatial Structure
+## Shared Backbone
+Architecture:
+- Conv(32) → MaxPool
+- Conv(64) → MaxPool
+- Conv(128)
 
-### Attribute Description
-Target B captures **fine-scale structural and orientation-sensitive attributes**, which depend on **precise spatial relationships** within the image.
+### Observations
+- Backbone consistently learns meaningful representations.
+- Task A improves steadily across runs, indicating shared features are not degenerate.
+- No evidence of backbone collapse or gradient domination from any single task.
 
-Typical examples include:
-- Orientation or angular alignment
-- Directional patterns
-- Local edge configuration
-- Subtle structural class differences
-
-### Feature Dependency
-- Strong reliance on **high-frequency spatial features**
-- Requires preservation of relative spatial positioning
-- Highly sensitive to pooling operations
-- Limited inherent rotation invariance
-
-### Learning Behavior
-- Training accuracy exceeds random baseline, confirming learnability
-- Validation accuracy remains close to baseline
-- Validation loss increases over time, indicating overfitting
-- Strong evidence of negative transfer from other tasks
-
-### Architectural Implications
-Target B requires:
-- Reduced or delayed pooling
-- Spatially aware feature representations
-- Task-specific convolutional branches
-- Careful gradient management to reduce interference
-
-A purely GAP-based head is insufficient for this target.
+Conclusion:
+> The shared feature extractor is **healthy and sufficient** for at least one classification task.
 
 ---
 
-## Target C — Intensity / Amplitude (Global Scalar Attribute)
+## Task A – Global Shape (10 classes)
 
-### Attribute Description
-Target C corresponds to a **global scalar property** of the image, such as intensity or amplitude, and is independent of spatial arrangement.
+### Empirical Results
+- Train accuracy: ~23–28%
+- Validation accuracy: closely tracks training
+- Loss decreases smoothly
+- No significant overfitting
 
-Typical examples include:
-- Mean or total signal intensity
-- Amplitude-related measures
-- Global magnitude statistics
+### Interpretation
+- Task A is **well-posed** and visually learnable.
+- GlobalAveragePooling works well for this task.
+- Task A acts as a reliable signal that the model is learning.
 
-### Feature Dependency
-- Depends mainly on **global statistical information**
-- Minimal sensitivity to spatial transformations
-- Robust to orientation, translation, and pooling
-- Easily separable from structural features
-
-### Learning Behavior
-- Converges rapidly during early training
-- Achieves low Mean Absolute Error (MAE)
-- Stable training and validation performance
-- Minimal interference with other tasks
-
-### Architectural Implications
-Target C benefits from:
-- Early Global Average Pooling
-- A shallow regression head
-- Optional gradient isolation (`stop_gradient`) to avoid task interference
-
-It is the **least complex task** among the three.
+Conclusion:
+> Task A is **not the bottleneck** and should remain architecturally simple.
 
 ---
 
-## Comparative Summary
+## Task C – Intensity / Amplitude (Regression)
 
-| Aspect | Target A | Target B | Target C |
-|------|---------|----------|----------|
-| Attribute Type | Global geometry | Orientation / fine structure | Global scalar |
-| Spatial Sensitivity | Medium | High | Low |
-| Dominant Frequencies | Low–mid | High | Very low |
-| Pooling Tolerance | High | Low | Very high |
-| Learning Difficulty | Moderate | High | Low |
-| Generalization | Stable but limited | Poor without specialization | Strong |
-| Task Interference | Moderate | High | Minimal |
+### Empirical Results
+- MAE ~0.22–0.24 (train & validation)
+- Stable across epochs
+- Insensitive to most architectural changes
+
+### Techniques Used
+- `tf.stop_gradient(x)` to prevent Task C from influencing shared features
+- Lightweight head (GAP → Dense)
+
+### Interpretation
+- Task C is either:
+  - easy, or
+  - weakly dependent on spatial structure
+- Regression signal is stable but low-information
+
+Conclusion:
+> Task C should remain **isolated and lightly weighted** to avoid gradient interference.
 
 ---
 
-## Key Insight for Multi-Task Learning
+## Task B – Orientation / Fine Structure (32 classes)
 
-The three targets occupy **distinct regions of the feature spectrum**:
+### Empirical Results
+- Train accuracy: ~4–5%
+- Validation accuracy: ~2.5–3.5%
+- Near random baseline (1 / 32 ≈ 3.1%)
+- Loss plateaus early (~3.46)
 
-- **Target A** relies on global structural abstraction  
-- **Target B** requires localized, orientation-preserving representations  
-- **Target C** depends on global statistical aggregation  
+### Key Findings
 
-As a result, a fully shared representation is **sub-optimal** without task-specific architectural adaptations, particularly for **Target B**, which is the most sensitive to spatial feature degradation.
+#### 1. Not Overfitting
+- Train and validation accuracies are both low.
+- Indicates **under-learning**, not memorization.
+
+#### 2. Flatten + Dense is Insufficient
+- Flattening spatial maps destroys relative spatial relationships.
+- Orientation and fine-grained tasks are spatially sensitive.
+
+#### 3. Oracle Dependency (Earlier Experiments)
+- When Task B was conditioned on Task A labels:
+  - Accuracy increased artificially
+  - Model learned shortcuts (label leakage)
+- Removing or weakening oracle input revealed true difficulty.
+
+#### 4. Visual Signal May Be Weak
+- Task B may be:
+  - visually ambiguous
+  - dependent on higher resolution
+  - dependent on Task A context
+  - noisy or inconsistently labeled
+
+Conclusion:
+> Task B is **fundamentally harder** and may be **data-limited**, not model-limited.
+
+---
+
+## Cross-Task Interaction
+
+### Observations
+- Task A learning does not help Task B automatically.
+- Task C gradients can interfere unless explicitly stopped.
+- Increasing Task B loss weight does **not** fix under-learning.
+
+Conclusion:
+> Multi-task setup is stable, but **positive transfer to Task B does not happen naturally**.
+
+---
+
+## What We Know for Sure
+
+- The code is correct and stable.
+- Training dynamics are sane.
+- Task A and C are learnable.
+- Task B is the true bottleneck.
+- Task B failure is **not** caused by:
+  - optimizer
+  - loss function
+  - learning rate
+  - overfitting
+  - model wiring bugs
+
+---
+
+## Open Questions (Next Session)
+
+1. Is Task B visually distinguishable at 32×32 resolution?
+2. Does Task B accuracy improve when:
+   - conditioned on *predicted* Task A?
+   - evaluated only on correctly predicted Task A samples?
+3. Are Task B labels noisy or imbalanced?
+4. Would Task B benefit from:
+   - higher input resolution?
+   - contrastive or metric learning?
+   - grouping / hierarchical labels?
+
+---
+
+## Next Experiments (Deferred)
+
+- Confusion matrix for Task B
+- Accuracy of B conditioned on correct A
+- Entropy analysis of B predictions
+- Dataset visualization per B class
+- Optional: freeze backbone, train B-only head
+
+---
+
+**Status**: Architecture exploration paused  
+**Decision**: Investigate Task B data & label structure before further model changes
