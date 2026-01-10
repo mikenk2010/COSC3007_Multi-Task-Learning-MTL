@@ -1,0 +1,586 @@
+{
+    "type": "AdaptiveCard",
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.3",
+    "body": [
+        {
+            "type": "Container",
+            "style": "emphasis",
+            "items": [
+                {
+                    "type": "ColumnSet",
+                    "columns": [
+                        {
+                            "type": "Column",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "Australia",
+                                    "size": "Large",
+                                    "weight": "Bolder"
+                                },
+                                {
+                                    "type": "TextBlock",
+                                    "text": "Employee Onboarding",
+                                    "size": "Large",
+                                    "spacing": "None",
+                                    "weight": "Bolder"
+                                }
+                            ],
+                            "width": "stretch",
+                            "verticalContentAlignment": "Center"
+                        },
+                        {
+                            "type": "Column",
+                            "items": [
+                                {
+                                    "type": "Image",
+                                    "url": "https://da8t9y7300ntx.cloudfront.net/icons/ticketing-pending.gif",
+                                    "altText": "",
+                                    "height": "30px",
+                                    "width": "120px"
+                                }
+                            ],
+                            "width": "auto"
+                        }
+                    ]
+                }
+            ],
+            "bleed": true
+        },
+        {
+            "type": "Container",
+            "items": [
+                {
+                    "type": "TextBlock",
+                    "text": "EON-AU0913",
+                    "wrap": true,
+                    "size": "Large",
+                    "fontType": "Default",
+                    "weight": "Bolder"
+                },
+                {
+                    "type": "TextBlock",
+                    "text": "A ticket has been assigned to you (<at>marie.lahdo@thehourglass.com</at>)",
+                    "wrap": true,
+                    "isSubtle": false,
+                    "size": "Default",
+                    "fontType": "Default"
+                }
+            ],
+            "verticalContentAlignment": "Center",
+            "horizontalAlignment": "Left"
+        },
+        {
+            "type": "Container",
+            "id": "containerFullCommonData",
+            "items": [
+                {
+                    "type": "TextBlock",
+                    "text": "Employee Details",
+                    "wrap": true,
+                    "size": "Large",
+                    "weight": "Bolder",
+                    "fontType": "Default",
+                    "spacing": "Default"
+                },
+                {
+                    "type": "FactSet",
+                    "spacing": "None",
+                    "facts": [
+                        {
+                            "title": "Company",
+                            "value": "THGRAU Pty Ltd"
+                        },
+                        {
+                            "title": "Team",
+                            "value": "Retail"
+                        },
+                        {
+                            "title": "Department/Boutique",
+                            "value": "Perth Rolex"
+                        },
+                        {
+                            "title": "New Hire",
+                            "value": "New Hire"
+                        },
+                        {
+                            "title": "Employee ID",
+                            "value": "AU0913"
+                        },
+                        {
+                            "title": "First Name",
+                            "value": "Marcia"
+                        },
+                        {
+                            "title": "Last Name",
+                            "value": "Barros Graf Manso"
+                        },
+                        {
+                            "title": "Preferred Name",
+                            "value": "TEST TEST"
+                        },
+                        {
+                            "title": "Email Address",
+                            "value": "marcia.manso@thehourglass.com"
+                        },
+                        {
+                            "title": "Designation",
+                            "value": "Sales Associate I"
+                        },
+                        {
+                            "title": "Commencement Date",
+                            "value": "12/01/2026"
+                        },
+                        {
+                            "title": "Reporting Manager",
+                            "value": "Marie Lahdo (marie.lahdo@thehourglass.com)"
+                        }
+                    ]
+                },
+                {
+                    "type": "TextBlock",
+                    "text": "Hardware Request",
+                    "wrap": true,
+                    "fontType": "Default",
+                    "size": "Default",
+                    "weight": "Bolder",
+                    "spacing": "Default"
+                },
+                {
+                    "type": "Container",
+                    "spacing": "None",
+                    "items": [
+                        {
+                            "type": "Input.ChoiceSet",
+                            "id": "inputCheckboxHardware",
+                            "value": "",
+                            "choices": [
+                                {
+                                    "type": "Input.Toggle",
+                                    "title": "External Monitor - Dell 27 inch",
+                                    "id": "hardware_External Monitor - Dell 27 inch",
+                                    "value": "External Monitor - Dell 27 inch"
+                                },
+                                {
+                                    "type": "Input.Toggle",
+                                    "title": "iPhone & Accessories (Charger - Case - etc...)",
+                                    "id": "hardware_iPhone & Accessories (Charger - Case - etc...)",
+                                    "value": "iPhone & Accessories (Charger - Case - etc...)"
+                                },
+                                {
+                                    "type": "Input.Toggle",
+                                    "title": "iPad Accessories (Charger - Case - etc...)",
+                                    "id": "hardware_iPad Accessories (Charger - Case - etc...)",
+                                    "value": "iPad Accessories (Charger - Case - etc...)"
+                                },
+                                {
+                                    "type": "Input.Toggle",
+                                    "title": "Laptop & Accessories (Charger - Case - etc...)",
+                                    "id": "hardware_Laptop & Accessories (Charger - Case - etc...)",
+                                    "value": "Laptop & Accessories (Charger - Case - etc...)"
+                                },
+                                {
+                                    "type": "Input.Toggle",
+                                    "title": "PABX Desk Phone & Phone Line (DID)",
+                                    "id": "hardware_PABX Desk Phone & Phone Line (DID)",
+                                    "value": "PABX Desk Phone & Phone Line (DID)"
+                                },
+                                {
+                                    "type": "Input.Toggle",
+                                    "title": "Not Applicable",
+                                    "id": "hardware_Not Applicable",
+                                    "value": "Not Applicable"
+                                }
+                            ],
+                            "isMultiSelect": true,
+                            "style": "expanded",
+                            "isRequired": true
+                        }
+                    ]
+                },
+                {
+                    "type": "TextBlock",
+                    "text": "Application Request",
+                    "wrap": true,
+                    "fontType": "Default",
+                    "size": "Default",
+                    "weight": "Bolder",
+                    "spacing": "ExtraLarge"
+                },
+                {
+                    "type": "Container",
+                    "spacing": "None",
+                    "items": [
+                        {
+                            "type": "Input.ChoiceSet",
+                            "id": "inputCheckboxApplication",
+                            "choices": [
+                                {
+                                    "type": "Input.Toggle",
+                                    "title": "CEM & Email Builder",
+                                    "id": "application_CEM & Email Builder",
+                                    "value": "CEM & Email Builder"
+                                },
+                                {
+                                    "type": "Input.Toggle",
+                                    "title": "M3",
+                                    "id": "application_M3",
+                                    "value": "M3"
+                                },
+                                {
+                                    "type": "Input.Toggle",
+                                    "title": "M3 (Intranet Reports)",
+                                    "id": "application_M3 (Intranet Reports)",
+                                    "value": "M3 (Intranet Reports)"
+                                },
+                                {
+                                    "type": "Input.Toggle",
+                                    "title": "BI",
+                                    "id": "application_BI",
+                                    "value": "BI"
+                                },
+                                {
+                                    "type": "Input.Toggle",
+                                    "title": "M3 Sales ID",
+                                    "id": "application_M3 Sales ID",
+                                    "value": "M3 Sales ID"
+                                },
+                                {
+                                    "type": "Input.Toggle",
+                                    "title": "Not Applicable",
+                                    "id": "application_Not Applicable",
+                                    "value": "Not Applicable"
+                                }
+                            ],
+                            "isMultiSelect": true,
+                            "style": "expanded",
+                            "isRequired": true
+                        }
+                    ]
+                },
+                {
+                    "type": "TextBlock",
+                    "text": "Application Roles & Permissions",
+                    "wrap": true,
+                    "size": "Default",
+                    "weight": "Bolder",
+                    "fontType": "Default",
+                    "spacing": "ExtraLarge"
+                },
+                {
+                    "type": "Container",
+                    "items": [
+                        {
+                            "type": "ColumnSet",
+                            "columns": [
+                                {
+                                    "type": "Column",
+                                    "width": "100px",
+                                    "items": [
+                                        {
+                                            "type": "TextBlock",
+                                            "text": "CEM Role",
+                                            "wrap": true
+                                        }
+                                    ],
+                                    "horizontalAlignment": "Left",
+                                    "verticalContentAlignment": "Center"
+                                },
+                                {
+                                    "type": "Column",
+                                    "width": "stretch",
+                                    "items": [
+                                        {
+                                            "type": "Input.ChoiceSet",
+                                            "id": "selectCEMRole",
+                                            "choices": [
+                                                {
+                                                    "title": "Brands",
+                                                    "value": "Brands"
+                                                },
+                                                {
+                                                    "title": "Digital Concierge",
+                                                    "value": "Digital Concierge"
+                                                },
+                                                {
+                                                    "title": "Dispatch",
+                                                    "value": "Dispatch"
+                                                },
+                                                {
+                                                    "title": "Finance & Inventory",
+                                                    "value": "Finance & Inventory"
+                                                },
+                                                {
+                                                    "title": "Finance (SG Only)",
+                                                    "value": "Finance (SG Only)"
+                                                },
+                                                {
+                                                    "title": "Internal Audit",
+                                                    "value": "Internal Audit"
+                                                },
+                                                {
+                                                    "title": "Learning & Development",
+                                                    "value": "Learning & Development"
+                                                },
+                                                {
+                                                    "title": "Management",
+                                                    "value": "Management"
+                                                },
+                                                {
+                                                    "title": "Marketing",
+                                                    "value": "Marketing"
+                                                },
+                                                {
+                                                    "title": "Operations",
+                                                    "value": "Operations"
+                                                },
+                                                {
+                                                    "title": "Assistant Boutique Manager",
+                                                    "value": "Assistant Boutique Manager"
+                                                },
+                                                {
+                                                    "title": "SAV",
+                                                    "value": "SAV"
+                                                },
+                                                {
+                                                    "title": "SAV Technician",
+                                                    "value": "SAV Technician"
+                                                },
+                                                {
+                                                    "title": "Watch Specialist",
+                                                    "value": "Watch Specialist"
+                                                },
+                                                {
+                                                    "title": "Boutique Manager",
+                                                    "value": "Boutique Manager"
+                                                }
+                                            ],
+                                            "placeholder": "Select CEM Role",
+                                            "spacing": "None"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "Additional CEM access required",
+                            "wrap": true
+                        },
+                        {
+                            "type": "Input.Text",
+                            "placeholder": "Example: Please assign this employee with the same CEM access as john.doe@thehourglass.com",
+                            "isMultiline": true,
+                            "id": "inputCEMRoleAdditional",
+                            "spacing": "None"
+                        }
+                    ]
+                },
+                {
+                    "type": "Container",
+                    "items": [
+                        {
+                            "type": "ColumnSet",
+                            "columns": [
+                                {
+                                    "type": "Column",
+                                    "width": "100px",
+                                    "items": [
+                                        {
+                                            "type": "TextBlock",
+                                            "text": "M3 Role",
+                                            "wrap": true
+                                        }
+                                    ],
+                                    "verticalContentAlignment": "Center"
+                                },
+                                {
+                                    "type": "Column",
+                                    "width": "stretch",
+                                    "items": [
+                                        {
+                                            "type": "Input.ChoiceSet",
+                                            "id": "selectM3Role",
+                                            "choices": [
+                                                {
+                                                    "title": "Watch Specialist",
+                                                    "value": "Watch Specialist"
+                                                },
+                                                {
+                                                    "title": "Operations",
+                                                    "value": "Operations"
+                                                },
+                                                {
+                                                    "title": "Finance",
+                                                    "value": "Finance"
+                                                },
+                                                {
+                                                    "title": "Inventory",
+                                                    "value": "Inventory"
+                                                },
+                                                {
+                                                    "title": "PO Approving Officer",
+                                                    "value": "PO Approving Officer"
+                                                },
+                                                {
+                                                    "title": "Support/ Admin",
+                                                    "value": "Support/ Admin"
+                                                }
+                                            ],
+                                            "placeholder": "Select M3 Role",
+                                            "spacing": "None"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "Additional M3 access required",
+                            "wrap": true
+                        },
+                        {
+                            "type": "Input.Text",
+                            "placeholder": "Example: Please assign this employee with the same M3 access as john.doe@thehourglass.com",
+                            "id": "inputM3RoleAdditional",
+                            "isMultiline": true,
+                            "spacing": "None"
+                        }
+                    ]
+                }
+            ],
+            "separator": true
+        },
+        {
+            "type": "ColumnSet",
+            "columns": [
+                {
+                    "type": "Column",
+                    "selectAction": {
+                        "type": "Action.ToggleVisibility",
+                        "targetElements": [
+                            "cardContentHistory",
+                            "showHistory",
+                            "hideHistory"
+                        ],
+                        "title": "ShowHideLog",
+                        "id": "eventShowHideLog"
+                    },
+                    "verticalContentAlignment": "Center",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "id": "showHistory",
+                            "horizontalAlignment": "Right",
+                            "color": "Accent",
+                            "text": "Show history",
+                            "wrap": true
+                        },
+                        {
+                            "type": "TextBlock",
+                            "id": "hideHistory",
+                            "horizontalAlignment": "Right",
+                            "color": "Accent",
+                            "text": "Hide history",
+                            "wrap": true,
+                            "isVisible": false
+                        }
+                    ],
+                    "width": 1,
+                    "bleed": true
+                }
+            ]
+        },
+        {
+            "type": "Container",
+            "id": "cardContentHistory",
+            "isVisible": false,
+            "items": [
+                {
+                    "type": "Container",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "text": "Triggered by **MiHCM** on 06 Jan 2026, 12:37 PM",
+                            "isSubtle": true,
+                            "wrap": true,
+                            "size": "Small",
+                            "weight": "Lighter"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "Container",
+            "spacing": "Large",
+            "separator": true,
+            "items": [
+                {
+                    "type": "ActionSet",
+                    "actions": [
+                        {
+                            "type": "Action.ShowCard",
+                            "title": "Submit for Approval",
+                            "card": {
+                                "type": "AdaptiveCard",
+                                "body": [
+                                    {
+                                        "type": "Input.Text",
+                                        "placeholder": "Please input your comment",
+                                        "isMultiline": true,
+                                        "isRequired": false,
+                                        "id": "inputProcessToApproved",
+                                        "errorMessage": "",
+                                        "label": "Comment"
+                                    }
+                                ],
+                                "actions": [
+                                    {
+                                        "type": "Action.Submit",
+                                        "title": "Submit",
+                                        "iconUrl": "https://cdn-icons-png.flaticon.com/32/762/762620.png",
+                                        "id": "actionProcessToApprove2"
+                                    }
+                                ]
+                            },
+                            "id": "actionProcessToApprove",
+                            "style": "positive",
+                            "iconUrl": "https://cdn-icons-png.flaticon.com/32/762/762620.png"
+                        },
+                        {
+                            "type": "Action.ShowCard",
+                            "title": "Reject",
+                            "card": {
+                                "type": "AdaptiveCard",
+                                "body": [
+                                    {
+                                        "type": "Input.Text",
+                                        "placeholder": "Reason for rejection",
+                                        "isMultiline": true,
+                                        "isRequired": true,
+                                        "id": "inputReject",
+                                        "label": "Comment",
+                                        "errorMessage": "Missing comment"
+                                    }
+                                ],
+                                "actions": [
+                                    {
+                                        "type": "Action.Submit",
+                                        "title": "Submit",
+                                        "iconUrl": "https://cdn-icons-png.flaticon.com/32/7698/7698976.png",
+                                        "id": "actionReject2"
+                                    }
+                                ]
+                            },
+                            "id": "actionReject",
+                            "style": "destructive",
+                            "iconUrl": "https://cdn-icons-png.flaticon.com/32/7698/7698976.png"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
