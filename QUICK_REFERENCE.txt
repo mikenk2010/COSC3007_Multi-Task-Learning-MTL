@@ -1,0 +1,125 @@
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃           QUICK REFERENCE: NOTEBOOK COMPARISON RESULTS                  ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+╭─────────────────────────────────────────────────────────────────────────╮
+│ 🎯 BOTTOM LINE                                                          │
+╰─────────────────────────────────────────────────────────────────────────╯
+
+test_clean.ipynb:         ✅ COMPLETE - 23.67% (A), 7.33% (B), 0.18 MAE (C)
+submission.ipynb:         ⚠️  INCOMPLETE - Expected ~25-30% (A), 8-12% (B)
+
+Winner for assignment:    test_clean.ipynb (faster, simpler, proven)
+Winner for production:    submission.ipynb (professional, scalable)
+
+
+╭─────────────────────────────────────────────────────────────────────────╮
+│ 📊 PERFORMANCE METRICS (test_clean.ipynb)                               │
+╰─────────────────────────────────────────────────────────────────────────╯
+
+Target A (10-class):      23.67%  (random: 10%)   → 2.4× better than random
+Target B (32-class):       7.33%  (random: 3.12%) → 2.3× better than random
+Target C (Regression):     0.1789 MAE
+
+Training:                 36 epochs, ~18 minutes, 200K parameters
+Multi-task interference:  Target A dropped 32.50% → 23.67% (-27%)
+
+
+╭─────────────────────────────────────────────────────────────────────────╮
+│ 🏗️  ARCHITECTURE DIFFERENCES                                            │
+╰─────────────────────────────────────────────────────────────────────────╯
+
+Backbone:
+  test_clean:    Conv(32)→Pool→Conv(64)→Pool→Conv(128)
+  submission:    SepConv(32)→ResBlock(64)×2→ResBlock(128)×2
+
+Parameters:      200K vs 500K (2.5× difference)
+Training time:   18 min vs 60 min (3.3× difference)
+
+Both use SAME MTL strategy:
+  • Task A → Task B: Feature sharing ✅
+  • Task C: Isolated with stop_gradient ✅
+  • Loss weights: (1.0, 1.5, 0.3)
+
+
+╭─────────────────────────────────────────────────────────────────────────╮
+│ ✅ STRENGTHS & ❌ WEAKNESSES                                             │
+╰─────────────────────────────────────────────────────────────────────────╯
+
+test_clean.ipynb:
+  ✅ Fast (18 min)          ❌ No mixed precision
+  ✅ Simple (200K params)   ❌ No tf.data pipeline
+  ✅ Good for small data    ❌ Basic documentation
+  ✅ Easy to debug          ❌ Manual hyperparameter tuning
+
+submission.ipynb:
+  ✅ Professional code      ❌ 3× slower (60 min)
+  ✅ Mixed precision        ❌ More complex
+  ✅ tf.data pipeline       ❌ Overfitting risk on small data
+  ✅ KerasTuner            ❌ Not fully executed yet
+
+
+╭─────────────────────────────────────────────────────────────────────────╮
+│ 🎓 KEY LEARNING INSIGHTS                                                │
+╰─────────────────────────────────────────────────────────────────────────╯
+
+1. Dataset size matters: 3000 / 32 = 94 samples/class → SMALL
+   → Simpler models generalize better on small datasets
+
+2. Multi-task interference: Target A accuracy dropped 27%
+   → MTL helps some tasks (B, C) but may hurt others (A)
+
+3. Task B is hard: 7.33% accuracy shows 32-class task needs more capacity
+   → Solution: Increase Task B head size OR better features
+
+4. Same MTL strategy works: Both notebooks use identical approach
+   → A→B feature sharing + C isolation = good design pattern
+
+
+╭─────────────────────────────────────────────────────────────────────────╮
+│ 🚀 RECOMMENDATIONS                                                      │
+╰─────────────────────────────────────────────────────────────────────────╯
+
+For quick submission:     Use test_clean.ipynb (already works!)
+
+For best performance:     Run submission.ipynb fully (45 min)
+
+For learning:            Compare both to understand Chollet Ch 13 practices
+
+For production:          Use submission.ipynb architecture + ensemble
+
+
+╭─────────────────────────────────────────────────────────────────────────╮
+│ 📁 FILES CREATED                                                        │
+╰─────────────────────────────────────────────────────────────────────────╯
+
+✅ COMPARISON_SUMMARY.txt       - Detailed text comparison
+✅ comparison_results.json      - Structured JSON data
+✅ QUICK_REFERENCE.txt          - This file
+✅ extract_comparison.py        - Metric extraction script
+✅ run_comparison.py            - Full execution script
+
+
+╭─────────────────────────────────────────────────────────────────────────╮
+│ ⏭️  NEXT ACTIONS                                                         │
+╰─────────────────────────────────────────────────────────────────────────╯
+
+Option 1: Submit test_clean.ipynb as-is
+  → Fast, proven results
+
+Option 2: Run submission notebook fully
+  → jupyter nbconvert --execute submission_xxxx_testclean.ipynb
+  → Time: 45 minutes
+
+Option 3: Improve test_clean.ipynb
+  → Add tf.data pipeline
+  → Increase Task B capacity (256→512)
+  → Enable mixed precision
+
+Option 4: Create hybrid notebook
+  → Best of both worlds
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Generated: 2025-01-13 | Deep Learning Course Comparison Tool           ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛

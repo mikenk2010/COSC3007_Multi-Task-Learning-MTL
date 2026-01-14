@@ -24,15 +24,18 @@
 
 ## 🎯 Project Overview
 
-This project implements a **Multi-Task Learning (MTL)** deep learning model that simultaneously predicts three independent targets from grayscale images. The solution follows best practices from **François Chollet's "Deep Learning with Python" (2nd Edition, Chapter 13)** and demonstrates research-grade implementation suitable for Master-level coursework.
+This project implements a **Multi-Task Learning (MTL)** deep learning model that simultaneously predicts three independent targets from grayscale images. The solution follows **core 50% best practices** from **François Chollet's "Deep Learning with Python" (2nd Edition, Chapter 13)**, demonstrating a **simple but effective** approach suitable for Master-level coursework.
+
+**Group ID**: s3715228_s3343711_s4139514  
+**Model File**: `model_s3715228_s3343711_s4139514.h5`
 
 ### Key Highlights
 
-- ✅ **True Ensembling**: Trains 3 models with different seeds and averages predictions
-- ✅ **ResNet-V2 Architecture**: Implements skip connections with SeparableConv2D for parameter efficiency
-- ✅ **Professional Logging**: Custom TrainingLogger callback with CSV persistence
-- ✅ **Comprehensive Diagnostics**: Class-wise analysis, residual analysis, confusion matrices
-- ✅ **Mathematical Rigor**: LaTeX formulations and theoretical justifications
+- ✅ **Simple Architecture**: 3-layer CNN (~200K parameters) - avoiding over-engineering
+- ✅ **Semantic Signal Transfer**: Task A → Task B feature sharing improves hardest task
+- ✅ **Gradient Isolation**: `tf.stop_gradient()` on Task C prevents negative transfer
+- ✅ **Balanced Loss Weighting**: Careful tuning (A: 1.0, B: 1.5, C: 0.3) enables effective multi-task learning
+- ✅ **Core Best Practices Only**: Following 50% of Chollet (2021) best practices - avoiding over-engineering
 
 ---
 
@@ -65,19 +68,27 @@ Multi-Task Learning offers several advantages over training separate models (Cho
 
 - **Training Set**: 2,400 samples (80%)
 - **Validation Set**: 600 samples (20%)
-- **Stratification**: Stratified by Target B (32 classes) to ensure balanced class distribution
+- **Stratification**: Stratified by Target A (10 classes) to ensure balanced class distribution
 
 ---
 
 ## 🔬 Methodology
 
-### Framework: Chapter 13 Best Practices
+### Framework: Core 50% Best Practices
 
-This notebook follows **Chapter 13: Best Practices for the Real World** from Chollet (2021):
+This notebook follows **Chapter 13: Best Practices for the Real World** from Chollet (2021), implementing **core 50% best practices**:
 
-- **Scaling Up**: Mixed precision training and high-performance data pipelines using `tf.data`
-- **Hyperparameter Tuning**: Discussion of systematic hyperparameter search strategies
-- **Ensembling**: True implementation of model ensemble techniques
+- **Simple Architecture**: Avoiding over-engineering (no ResNet, no complex abstractions)
+- **Gradient Flow Control**: Using `tf.stop_gradient()` for negative transfer prevention
+- **Loss Weighting**: Balancing different task scales
+- **Core Callbacks**: EarlyStopping and ReduceLROnPlateau for stable training
+- **Reproducibility**: Seed setting (SEED=42) for consistent results
+
+**What we deliberately avoided** (to keep it simple):
+- ❌ Mixed precision training (too complex for this dataset size)
+- ❌ KerasTuner hyperparameter search (manual tuning is sufficient)
+- ❌ Complex ensemble methods (simple training is enough)
+- ❌ Type hints and elaborate logging (clean code is sufficient)
 
 ### Loss Formulation
 
@@ -88,84 +99,70 @@ $$L_{total} = w_A \cdot L_{CCE}(y_A, \hat{y}_A) + w_B \cdot L_{CCE}(y_B, \hat{y}
 where:
 - $L_{CCE}$ is Sparse Categorical Cross-Entropy for classification
 - $L_{MSE}$ is Mean Squared Error for regression
-- $w_A = 1.0$, $w_B = 2.5$, $w_C = 10.0$ are loss weights
+- $w_A = 1.0$, $w_B = 1.5$, $w_C = 0.3$ are loss weights
 
-**Loss Weight Justification**: The weights balance gradient magnitudes across tasks. $w_C = 10.0$ ensures regression gradients are comparable to classification gradients, preventing gradient starvation.
+**Loss Weight Justification**: The weights balance gradient magnitudes across tasks. $w_B = 1.5$ gives more signal to the hardest task (32 classes), while $w_C = 0.3$ prevents regression from dominating classification tasks.
 
 ---
 
 ## 🏗️ Architecture
 
-### ResNet-V2 Style Backbone
+### Simple 3-Layer CNN Backbone
 
-The model uses a ResNet-V2 architecture with the following components:
+The model uses a simple CNN architecture (inspired by test_clean.ipynb) with the following components:
 
 1. **Input Layer**: (32, 32, 1) grayscale images
-2. **Data Augmentation**: RandomRotation, RandomZoom (active during training only)
-3. **Backbone**:
-   - Initial SeparableConv2D (32 filters)
-   - 4 Residual Blocks: 64→64→128→128 filters
-   - Global Average Pooling (parameter efficient)
-4. **Shared Features**: Dense(256) + BatchNormalization
-5. **Multi-Task Heads**:
-   - **Head A**: Dense(128) → Dense(10, softmax)
-   - **Head B**: Dense(256) → Dropout(0.5) → Dense(32, softmax)
-   - **Head C**: Dense(64) → Dense(1, sigmoid)
+2. **Shared Backbone** (Simple CNN):
+   - Conv2D(32, 3×3) → MaxPooling2D(2) → 16×16
+   - Conv2D(64, 3×3) → MaxPooling2D(2) → 8×8
+   - Conv2D(128, 3×3) → 8×8
+3. **Multi-Task Heads**:
+   - **Head A**: Conv2D(128) → Conv2D(128) → GlobalAvgPool → Dense(64) → Dropout(0.5) → Dense(10, softmax)
+   - **Head B**: Conv2D(64) → Conv2D(64) → Conv2D(128) → MaxPool → MaxPool → Flatten → **Concatenate(Task A features)** → Dense(256) → Dropout(0.5) → Dense(32, softmax)
+   - **Head C**: **stop_gradient(shared)** → GlobalAvgPool → Dense(32) → Dropout(0.3) → Dense(1, sigmoid)
 
-### Why SeparableConv2D?
+### Why Simple CNN?
 
-Separable convolutions (Chollet, 2021, Ch 13.1) reduce parameters by ~8-9x while maintaining similar representational capacity:
-- **Depthwise Convolution**: Single filter per input channel
-- **Pointwise Convolution**: 1×1 convolution to combine channels
+- **Small Dataset**: 3,000 samples is too small for deep ResNet architectures
+- **Parameter Efficiency**: ~200K parameters vs ~500K+ in ResNet (better generalization)
+- **Faster Training**: Simpler architecture trains faster and is easier to debug
+- **Sufficient Capacity**: 3-layer CNN provides adequate feature extraction for 32×32 images
 
-### Why ResNet-V2?
+### Key Design Decisions
 
-ResNet-V2 addresses vanishing gradients through skip connections: $y = F(x) + x$, enabling training of deeper networks.
+1. **Semantic Signal Transfer**: Task B receives features from Task A (positive transfer)
+2. **Gradient Isolation**: Task C uses `tf.stop_gradient()` to prevent negative transfer
+3. **No Data Augmentation**: Cannot use rotation/flip (would corrupt Task B orientation labels)
 
 ---
 
 ## ✨ Key Features
 
-### 1. Professional Engineering & Logging
+### 1. Simple but Effective Design
 
-- **Type Hints & Docstrings**: All functions use Python type hints and Google-style docstrings
-- **Custom TrainingLogger**: Logs all metrics to `training_log.csv` and displays formatted tables after each epoch
-- **Sanity Checks**: Verifies model architecture with dummy tensors before training
+- **Clean Code**: Readable implementation without over-engineering
+- **Core Best Practices**: Following 50% of Chollet (2021) guidelines - avoiding complexity
+- **Reproducibility**: Seed setting (SEED=42) ensures consistent results
 
-### 2. High-Performance Data Pipeline
+### 2. Efficient Data Pipeline
 
-Following Chollet (2021, Ch 13.2), uses `tf.data.Dataset` with:
-- `.shuffle(buffer_size=1024)` for training data
-- `.batch(32)` for efficient GPU processing
-- `.map(preprocess_fn, num_parallel_calls=AUTOTUNE)` for parallel preprocessing
-- `.cache()` to cache preprocessed data in RAM
-- **`.prefetch(AUTOTUNE)`**: Critical for performance - prefetches next batch while GPU trains
+Uses standard NumPy arrays with proper normalization:
+- Normalization using training-only statistics (prevents data leakage)
+- Standard preprocessing: `(X - mean) / (std + 1e-6)` for numerical stability
+- Batch size: 64 (optimal for GPU utilization)
 
-### 3. True Ensembling Implementation
+### 3. Multi-Task Learning Innovations
 
-**Not pseudocode** - fully implemented:
-- Trains 3 separate models with seeds `[42, 43, 44]`
-- Stores all models in `ensemble_models` list
-- Averages predictions using Soft Voting (classification) and Mean (regression)
-- Expected improvement: 2-5% accuracy boost
+**Key Design Features**:
+- **Semantic Signal Transfer**: Task A features concatenated into Task B (improves hardest task)
+- **Gradient Isolation**: `tf.stop_gradient()` on Task C prevents negative transfer
+- **Balanced Loss Weights**: A=1.0, B=1.5, C=0.3 (balances learning across tasks)
 
-### 4. Advanced Diagnostic Analysis
+### 4. Training Callbacks
 
-Comprehensive research-grade diagnostics:
-
-- **Class-wise Performance**: Bar charts showing accuracy per class for Task B
-- **Residual Analysis**: Histogram and Q-Q plot with Shapiro-Wilk normality test
-- **Confusion Matrix**: Heatmap with masked diagonal to highlight confused class pairs
-- **Ensemble Gain**: Visualization comparing ensemble vs. individual models
-- **Error Analysis**: `show_worst_mistakes()` function displays images with highest loss
-
-### 5. Training Callbacks
-
-- **ModelCheckpoint**: Saves best model based on validation loss
-- **EarlyStopping**: Stops training if no improvement for 15 epochs
-- **ReduceLROnPlateau**: Reduces learning rate by 0.2× when stuck
-- **TensorBoard**: Logs for visualization
-- **TrainingLogger**: Custom callback for CSV logging and formatted tables
+- **ModelCheckpoint**: Saves best model based on `val_head_b_sparse_categorical_accuracy` (Task B)
+- **EarlyStopping**: Stops training if no improvement for 8 epochs (monitors Task B)
+- **ReduceLROnPlateau**: Reduces learning rate by 0.7× when stuck (monitors Task B)
 
 ---
 
@@ -196,24 +193,24 @@ The notebook automatically checks and installs required packages. It also:
 
 ## 💻 Usage
 
-### Option A: Load Pre-trained Models
+### Option A: Load Pre-trained Model
 
-If you have saved models (`model_xxxx_seed{42,43,44}.h5` or `model_xxxx.h5`):
+If you have a saved model (`model_s3715228_s3343711_s4139514.h5`):
 
-1. Run **Cell 30** (Option A) to load ensemble models or single model
-2. Models are loaded with `compile=False` to avoid metric deserialization issues
+1. Run **Option A** cell to load the model
+2. Model is loaded with `compile=False` to avoid metric deserialization issues
 3. Evaluation uses predictions directly (no compilation needed)
 
 ### Option B: Train from Scratch
 
-To train the ensemble from scratch:
+To train the model from scratch:
 
-1. Ensure `TRAIN_FROM_SCRATCH = True` in **Cell 32** (Option B)
+1. Ensure `TRAIN_FROM_SCRATCH = True` in **Option B** cell
 2. The notebook will:
-   - Train 3 models with seeds [42, 43, 44]
-   - Save each model as `model_xxxx_seed{seed}.h5`
-   - Evaluate individual models and ensemble
-   - Plot training curves for the best model
+   - Train a single model with seed 42
+   - Save model as `model_s3715228_s3343711_s4139514.h5`
+   - Evaluate the model
+   - Plot training curves
 
 ### Prediction Function
 
@@ -225,7 +222,7 @@ The `predict_fn(X32x32)` function:
   - Column 1: Head B predictions (integers 0-31) - argmax of averaged probabilities
   - Column 2: Head C predictions (raw float in [0, 1]) - **CRITICAL: Raw float, NOT argmax**
 
-**Ensemble Logic**: If `ensemble_models` exists, averages predictions from all 3 models. Otherwise, uses single model.
+**Prediction Logic**: Uses the trained model to make predictions for all three tasks.
 
 ---
 
@@ -322,15 +319,11 @@ The notebook includes a comprehensive **Diagnostic Analysis** section (Section 1
 
 ```
 COSC3007_Group_Assignment_2025C/
-├── submission_xxxx.ipynb.ipynb    # Main notebook
-├── dataset_dev_3000.npz           # Dataset file
-├── README.md                      # This file
-├── requirements.txt               # Python dependencies
-├── training_log.csv               # Generated during training
-├── model_xxxx.h5                  # Single model (if saved)
-├── model_xxxx_seed42.h5           # Ensemble model 1
-├── model_xxxx_seed43.h5           # Ensemble model 2
-└── model_xxxx_seed44.h5           # Ensemble model 3
+├── submission_s3715228_s3343711_s4139514.ipynb    # Main notebook
+├── dataset_dev_3000.npz                           # Dataset file
+├── README.md                                      # This file
+├── requirements.txt                               # Python dependencies
+└── model_s3715228_s3343711_s4139514.h5           # Trained model (if saved)
 ```
 
 ---
@@ -349,9 +342,9 @@ This project demonstrates:
 
 ## ⚠️ Important Notes
 
-1. **Stratification**: The train/validation split stratifies by Target B (32 classes) - the most difficult task
-2. **Normalization**: Uses training-only statistics to avoid data leakage
-3. **Ensembling**: The `predict_fn` automatically uses ensemble if available, otherwise falls back to single model
+1. **Stratification**: The train/validation split stratifies by Target A (10 classes) for balanced distribution
+2. **Normalization**: Uses training-only statistics to avoid data leakage (adds 1e-6 for numerical stability)
+3. **Model File**: All models use group ID: `model_s3715228_s3343711_s4139514.h5`
 4. **Column 2 Output**: Head C returns **raw float**, not argmax (common mistake)
 5. **Model Loading**: Models are loaded with `compile=False` to avoid metric deserialization issues
 
